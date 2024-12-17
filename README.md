@@ -1,14 +1,23 @@
 1. Imports
-The required libraries are imported:
 
-os, random: File path management and randomness.
-numpy: Numerical operations.
-matplotlib, seaborn: Visualization tools.
-ImageDataGenerator: Used for image augmentation and preprocessing.
-VGG16: A pre-trained model for transfer learning.
-Model layers: To build a neural network.
-Callbacks: Improve training through early stopping, model checkpointing, and learning rate adjustments.
-Evaluation metrics: classification_report, confusion_matrix, and f1_score.
+
+
+#os, random: File path management and randomness.
+
+#numpy: Numerical operations.
+
+#matplotlib, seaborn: Visualization tools.
+
+#ImageDataGenerator: Used for image augmentation and preprocessing.
+
+#VGG16: A pre-trained model for transfer learning.
+
+#Model layers: To build a neural network.
+
+
+#Callbacks: Improve training through early stopping, model checkpointing, and learning rate adjustments.
+
+#Evaluation metrics: classification_report, confusion_matrix, and f1_score.
 
 import os
 import random
@@ -27,9 +36,11 @@ from tensorflow.keras.preprocessing.image import load_img
 # Paths to the dataset
 data_dir = "C:/Users/HP/Downloads/data"  # Update with your dataset path
 
-rescale=1./255: Normalizes image pixel values to [0, 1].
-Augmentation includes rotation, zoom, flipping, and shifts to make the model robust to variations.
-validation_split=0.2: Splits the dataset into 80% training and 20% validation.
+#rescale=1./255: Normalizes image pixel values to [0, 1].
+
+#Augmentation includes rotation, zoom, flipping, and shifts to make the model robust to variations.
+
+#validation_split=0.2: Splits the dataset into 80% training and 20% validation.
 
 # Data Preprocessing and Augmentation
 data_gen = ImageDataGenerator(
@@ -44,9 +55,11 @@ data_gen = ImageDataGenerator(
 )
 
 
-Reads images from data_dir.
-target_size=(224, 224): Resizes images to match VGG16 input dimensions.
-class_mode='binary': For a binary classification problem (mask/no mask).
+#Reads images from data_dir.
+
+#target_size=(224, 224): Resizes images to match VGG16 input dimensions.
+
+#class_mode='binary': For a binary classification problem (mask/no mask).
 
 
 train_generator = data_gen.flow_from_directory(
@@ -66,24 +79,29 @@ val_generator = data_gen.flow_from_directory(
 )
 
 
-VGG16: A pre-trained model trained on ImageNet data.
-include_top=False: Removes the top layers (fully connected layers) to use it as a feature extractor.
+#VGG16: A pre-trained model trained on ImageNet data.
+
+#include_top=False: Removes the top layers (fully connected layers) to use it as a feature extractor.
 
 
 # Model Development with Transfer Learning
 base_model = VGG16(weights='imagenet', include_top=False, input_shape=(224, 224, 3))
 base_model.trainable = True  # Unfreeze some layers for fine-tuning
 
-Freezes the first 15 layers and fine-tunes the rest to adapt VGG16 features to the new dataset.
+#Freezes the first 15 layers and fine-tunes the rest to adapt VGG16 features to the new dataset.
 
 # Fine-tune from the 15th layer onwards
 for layer in base_model.layers[:15]:
     layer.trainable = False
 
-GlobalAveragePooling2D: Reduces the feature maps into a vector.
-Dense(128): Adds a dense layer with 128 neurons and ReLU activation.
-Dropout(0.5): Prevents overfitting.
-Dense(1): Final binary output layer with sigmoid activation.
+#GlobalAveragePooling2D: Reduces the feature maps into a vector.
+
+#Dense(128): Adds a dense layer with 128 neurons and ReLU activation.
+
+#Dropout(0.5): Prevents overfitting.
+
+#Dense(1): Final binary output layer with sigmoid activation.
+
 
 model = Sequential([
     base_model,
@@ -97,17 +115,21 @@ model = Sequential([
 model.compile(optimizer=Adam(learning_rate=0.001),
               loss='binary_crossentropy',
               metrics=['accuracy'])
-Optimizer: Adam with a learning rate of 0.001.
-Loss Function: Binary cross-entropy since it is a binary classification task.
-Metrics: Accuracy.
+#Optimizer: Adam with a learning rate of 0.001.
+
+#Loss Function: Binary cross-entropy since it is a binary classification task.
+
+#Metrics: Accuracy.
 
 # Model Summary
 model.summary()
 
 # Callbacks
-EarlyStopping: Stops training if validation loss doesn't improve after 5 epochs.
-ReduceLROnPlateau: Reduces learning rate when validation loss plateaus.
-ModelCheckpoint: Saves the best model based on validation accuracy.
+#EarlyStopping: Stops training if validation loss doesn't improve after 5 epochs.
+
+#ReduceLROnPlateau: Reduces learning rate when validation loss plateaus.
+
+#ModelCheckpoint: Saves the best model based on validation accuracy.
 
 early_stopping = EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)
 reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=3, min_lr=1e-6)
